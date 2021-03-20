@@ -1,0 +1,139 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Data.SqlClient;
+using System.Data;
+
+namespace WebApplication25
+{
+    public class BusinessLogic
+    {
+        SqlConnection con;
+        SqlDataAdapter da;
+        SqlCommandBuilder cmb;
+        DataRow row;
+        DataSet ds;
+        public BusinessLogic()
+        {
+            con = new SqlConnection(@"Data Source=DESKTOP-S9F2L32;Initial Catalog=bankdb;User ID=sa;Password=Ojas@15251525");
+            da = new SqlDataAdapter("select * from Tbl_Account",con);
+            cmb = new SqlCommandBuilder();
+            ds = new DataSet();
+            da.Fill(ds, "Tbl_Account");
+            da.Update(ds.Tables["Tbl_Account"]);
+            ds.Tables["Tbl_Account"].Constraints.Add("userid_pk", ds.Tables["Tbl_Account"].Columns["Userid"],true);
+        }
+        public bool CreateAccount(Account account)
+        {
+            row = ds.Tables["Tbl_Account"].NewRow();
+            row["Acno"] = account.AcNo;
+            row["AcName"] = account.AcName;
+            row["Balance"] = account.Balance;
+            row["UserId"] = account.UserId;
+            row["password"] = account.Password;
+            return da.Update(ds.Tables["Tbl_Account"]) == 1;
+        }
+        public bool LoginUser(Account account)
+        {
+            row = ds.Tables["Tbl_Account"].Rows.Find(account.AcNo);
+
+            return row["password"].ToString() == account.Password;
+
+        }
+        public bool ChangePassword(Account account)
+        {
+            row = ds.Tables["Tbl_Account"].Rows.Find(account.UserId);
+           
+            row["password"] = account.Password;
+            return da.Update(ds.Tables["Tbl_Account"]) == 1;
+        }
+        public bool TransferFund(Account account)
+        {
+
+        }
+        public Account GetAccountByAcno(Account account)
+        {
+            row = ds.Tables["Tbl_Account"].Rows.Find(account.AcNo);
+            account.AcName = row["AcName"].ToString();
+            account.Balance = int.Parse(row["Balance"].ToString());
+            return account;
+        }
+        public Account GetAccountByUserId(Account account)
+        {
+            row = ds.Tables["Tbl_Account"].Rows.Find(account.AcNo);
+            account.AcNo = row["AcNo"].ToString();
+            account.AcName = row["AcName"].ToString();
+            account.Balance = int.Parse(row["Balance"].ToString());
+            return account;
+        }
+    }
+}
+================================================================================
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace WebApplication25
+{
+    public class Trans
+    {
+        public string FromAccount { get; set; }
+        public string  ToAccount { get; set; }
+        public int Account { get; set; }
+    }
+}
+==============================================================================
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace WebApplication25
+{
+    public class Account
+    {
+        public string AcNo { get; set; }
+        public string AcName { get; set; }
+        public string UserId { get; set; }
+        public string Password { get; set; }
+        public int Balance { get; set; }
+    }
+}
+============================================================================
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace WebApplication25
+{
+    public partial class UserTrans : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            MultiView1.ActiveViewIndex = 0;
+
+        }
+
+        protected void LinkButton1_Click(object sender, EventArgs e)
+        {
+            MultiView1.ActiveViewIndex = 1;
+        }
+
+        protected void LinkButton3_Click(object sender, EventArgs e)
+        {
+            MultiView1.ActiveViewIndex = 2;
+        }
+
+        protected void LinkButton5_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("Home.aspx");
+        }
+    }
+}
+===================================================================================
+
